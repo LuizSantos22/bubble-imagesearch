@@ -26,9 +26,10 @@ def upload():
         abort(502)
 
     public_url = resp.text.strip()
+    from flask import jsonify
     lens_url = 'https://lens.google.com/uploadbyurl?url=' + requests.utils.quote(public_url)
-    return redirect(lens_url, code=302)
-
+    return jsonify({'lens_url': lens_url})
+    
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
