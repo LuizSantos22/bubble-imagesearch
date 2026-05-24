@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
-import requests, os, base64
+import requests, os
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +17,6 @@ def upload():
     if len(data) > MAX_SIZE:
         abort(413)
 
-    # Usa freeimage.host (sem API key necessária)
     resp = requests.post(
         'https://freeimage.host/api/1/upload',
         data={
@@ -29,10 +28,15 @@ def upload():
         timeout=30
     )
 
-    if resp.status_code != 200:
-        abort(502)
+    # Retorna a resposta bruta para debug
+    try:
+        result = resp.json()
+    except Exception as e:
+        return jsonify({'error': 'JSON parse failed', 'status_code': resp.status_code, 'body': resp.text[:500]}), 502
 
-    result = resp.json()
+    if resp.status_code != 200 or 'image' not in result:
+        return jsonify({'error': 'Upload failed', 'status_code': resp.status_code, 'result': result}), 502
+
     public_url = result['image']['url']
     lens_url = 'https://lens.google.com/uploadbyurl?url=' + requests.utils.quote(public_url)
     return jsonify({'lens_url': lens_url})
