@@ -17,9 +17,9 @@ def upload():
     resp = requests.post(
         'https://0x0.st',
         files={'file': (f.filename, data, f.content_type)},
-        data={'expires': '1'}
+        data={'expires': '1'},
+        timeout=30
     )
-
     if resp.status_code != 200:
         abort(502)
 
