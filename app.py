@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
-import requests, os
+import requests, os, base64
 
 app = Flask(__name__)
 CORS(app)
@@ -17,11 +17,15 @@ def upload():
     if len(data) > MAX_SIZE:
         abort(413)
 
-    # Usa imgbb (gratuito, sem conta necessária para API pública)
+    # Usa freeimage.host (sem API key necessária)
     resp = requests.post(
-        'https://api.imgbb.com/1/upload',
-        data={'key': '2e46da7f4e8ede09d9b54609b03d04dc'},
-        files={'image': ('upload.jpg', data, f.content_type)},
+        'https://freeimage.host/api/1/upload',
+        data={
+            'key': '6d207e02198a847aa98d0a2a901485a5',
+            'action': 'upload',
+            'format': 'json'
+        },
+        files={'source': ('upload.jpg', data, f.content_type)},
         timeout=30
     )
 
@@ -29,7 +33,7 @@ def upload():
         abort(502)
 
     result = resp.json()
-    public_url = result['data']['url']
+    public_url = result['image']['url']
     lens_url = 'https://lens.google.com/uploadbyurl?url=' + requests.utils.quote(public_url)
     return jsonify({'lens_url': lens_url})
 
