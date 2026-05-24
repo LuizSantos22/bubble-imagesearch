@@ -1,7 +1,9 @@
 from flask import Flask, request, redirect, abort
+from flask_cors import CORS
 import requests, os
 
 app = Flask(__name__)
+CORS(app)
 MAX_SIZE = 5 * 1024 * 1024  # 5MB
 
 @app.route('/upload', methods=['POST'])
